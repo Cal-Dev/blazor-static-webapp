@@ -50,6 +50,10 @@ Once you clone the project, open the solution in the latest release of [Visual S
 
     The Static Web Apps CLI (`swa`) starts a proxy on port 4280 that will forward static site requests to the Blazor server on port 5000 and requests to the `/api` endpoint to the Functions server. 
 
+    New command from a code space from root dir
+
+    ```swa start ./Client -api ./Api```-
+
 1. Open a browser and navigate to the Static Web Apps CLI's address at `http://localhost:4280`. You'll be able to access both the client application and the Functions API app in this single address. When you navigate to the "Fetch Data" page, you'll see the data returned by the Functions API app.
 
 1. Enter Ctrl-C to stop the Static Web Apps CLI.
