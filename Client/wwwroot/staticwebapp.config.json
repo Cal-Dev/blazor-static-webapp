@@ -4,11 +4,17 @@
     "exclude": ["/api/*", "/static/*", "/images/*"]
   },
   "responseOverrides": {
-    "404": {
-      "rewrite": "/index.html"
-    }
+         "401": {
+           "statusCode": 302,
+           "redirect": "/.auth/login/aad"
+         }
   },
   "routes": [
+             {
+           "route": "/*",
+           "allowedRoles": [ "authenticated" ]
+         },
+
     {
       "route": "/login",
       "redirect": "/.auth/login/aad",
@@ -19,5 +25,5 @@
       "redirect": "/.auth/logout",
       "statusCode": 302
     }
-  ]
+    ]
 }
