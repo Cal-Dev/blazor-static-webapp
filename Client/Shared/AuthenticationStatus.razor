@@ -1,0 +1,75 @@
+@using BlazorApp.Client.Services
+@inject StaticWebAppAuthenticationService AuthService
+@inject NavigationManager Navigation
+
+<div class="auth-container @(isAuthenticated ? "authenticated" : "anonymous")">
+    @if (isAuthenticated)
+    {
+        <div class="user-info">
+            <span class="user-name">@userInfo?.UserDetails</span>
+            <button class="btn btn-outline-danger btn-sm" @onclick="Logout">
+                <span class="bi bi-box-arrow-right"></span> Logout
+            </button>
+        </div>
+    }
+    else
+    {
+        <button class="btn btn-primary btn-sm" @onclick="Login">
+            <span class="bi bi-box-arrow-in-right"></span> Login
+        </button>
+    }
+</div>
+
+@code {
+    private ClientPrincipal? userInfo;
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshAuthState();
+    }
+
+    private async Task RefreshAuthState()
+    {
+        userInfo = await AuthService.GetUserInfoAsync();
+        isAuthenticated = userInfo?.IsAuthenticated ?? false;
+    }
+
+    private void Login()
+    {
+        Navigation.NavigateTo("/.auth/login/aad", true);
+    }
+
+    private void Logout()
+    {
+        Navigation.NavigateTo("/.auth/logout", true);
+    }
+}
+
+<style>
+    .auth-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-name {
+        font-weight: 500;
+    }
+
+    .authenticated {
+        background-color: rgba(0, 255, 0, 0.1);
+    }
+
+    .anonymous {
+        background-color: rgba(255, 0, 0, 0.1);
+    }
+</style>
