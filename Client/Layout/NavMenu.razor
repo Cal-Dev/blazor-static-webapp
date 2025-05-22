@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using BlazorApp.Client.Services
+@inject StaticWebAppAuthenticationService AuthService
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">Static Web Apps</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -30,26 +33,70 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Features
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="logout">
-                <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Logout
-            </NavLink>
-        </div>
+        @if (isAuthenticated)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="userinfo">
+                    <span class="bi bi-person-circle" aria-hidden="true"></span> @userInfo?.UserDetails
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="logout">
+                    <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Logout
+                </NavLink>
+            </div>
+            @if (userInfo?.UserRoles?.Any() == true)
+            {
+                <div class="nav-item px-3">
+                    <div class="user-roles px-3 py-2">
+                        <small class="text-muted">Roles:</small>
+                        @foreach (var role in userInfo.UserRoles)
+                        {
+                            <span class="badge bg-secondary mx-1">@role</span>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="login">
+                    <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login to access more features
+                </NavLink>
+            </div>
+        }
     </nav>
+
+    <style>
+        .user-roles {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 1rem;
+        }
+    </style>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private bool isAuthenticated;
+    private ClientPrincipal? userInfo;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshAuthState();
+    }
+
+    private async Task RefreshAuthState()
+    {
+        userInfo = await AuthService.GetUserInfoAsync();
+        isAuthenticated = userInfo?.IsAuthenticated ?? false;
+    }
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
 }
+   

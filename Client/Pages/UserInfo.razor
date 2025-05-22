@@ -1,0 +1,74 @@
+@page "/userinfo"
+@inject StaticWebAppAuthenticationService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>User Information</PageTitle>
+
+@if (isAuthenticated)
+{
+    <div class="user-profile">
+        <h2>Welcome, @userInfo?.UserDetails!</h2>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Your Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>User ID:</strong></div>
+                    <div class="col-md-9">@userInfo?.UserId</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Identity Provider:</strong></div>
+                    <div class="col-md-9">@userInfo?.IdentityProvider</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3"><strong>Roles:</strong></div>
+                    <div class="col-md-9">
+                        @if (userInfo?.UserRoles?.Any() == true)
+                        {
+                            @foreach (var role in userInfo.UserRoles)
+                            {
+                                <span class="badge bg-primary me-2">@role</span>
+                            }
+                        }
+                        else
+                        {
+                            <em>No roles assigned</em>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Authentication Required</h4>
+        <p>You need to be logged in to view this page.</p>
+        <hr>
+        <button class="btn btn-primary" @onclick="Login">Log in now</button>
+    </div>
+}
+
+@code {
+    private ClientPrincipal? userInfo;
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshAuthState();
+    }
+
+    private async Task RefreshAuthState()
+    {
+        userInfo = await AuthService.GetUserInfoAsync();
+        isAuthenticated = userInfo?.IsAuthenticated ?? false;
+    }
+
+    private void Login()
+    {
+        Navigation.NavigateTo("/.auth/login/aad", true);
+    }
+}
